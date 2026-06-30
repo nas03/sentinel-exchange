@@ -1,0 +1,5 @@
+httpx
+websockets
+pydantic
+anthropic
+pytest

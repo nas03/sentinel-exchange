@@ -1,0 +1,38 @@
+# Local dev stack. Wire up incrementally as components become runnable —
+# don't try to containerize everything in Phase 0. A reasonable order:
+#   1. gateway + engine (Phase 1)
+#   2. + prometheus/grafana (Phase 5, latency dashboard)
+# Leave the frontend running outside Docker via `npm run dev` for fast
+# iteration; containerize it last, if at all, for the deploy phase.
+
+version: "3.9"
+
+services:
+  # engine:
+  #   build: ../engine
+  #   volumes:
+  #     - engine-ipc:/tmp/sentinel-ipc
+
+  # gateway:
+  #   build: ../gateway
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - engine
+  #   volumes:
+  #     - engine-ipc:/tmp/sentinel-ipc
+
+  # prometheus:
+  #   image: prom/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # grafana:
+  #   image: grafana/grafana
+  #   ports:
+  #     - "3000:3000"
+
+volumes:
+  engine-ipc:
