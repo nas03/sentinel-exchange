@@ -13,7 +13,7 @@ surveillance/
 
 ## Why rules come before the LLM
 
-The rule-based detector runs on every event — cheap, deterministic, fast. It decides *what's worth looking at*. The LLM agent only runs on flagged events — it decides *how to explain what's already been flagged*. This split is itself a design decision worth defending in an interview: LLMs are the wrong tool for high-frequency deterministic triage, and the right tool for turning a flagged pattern into a readable explanation a human can act on.
+The rule-based detector runs on every event — cheap, deterministic, fast. It decides _what's worth looking at_. The LLM agent only runs on flagged events — it decides _how to explain what's already been flagged_. This split is itself a design decision worth defending in an interview: LLMs are the wrong tool for high-frequency deterministic triage, and the right tool for turning a flagged pattern into a readable explanation a human can act on.
 
 ## Build order (Roadmap Phase 4-5)
 

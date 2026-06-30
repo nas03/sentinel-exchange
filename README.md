@@ -52,14 +52,14 @@ cd surveillance && pip install -r requirements.txt && python -m bots.run_simulat
 
 ## Repo map
 
-| Path | Language | Purpose |
-|---|---|---|
-| `engine/` | C++ | Core matching engine — price-time priority order book, order add/cancel/match |
-| `gateway/` | Go | API gateway — auth, validation, rate limiting, WebSocket fan-out, audit logging |
-| `frontend/` | TypeScript/React | Live order book, trade tape, order entry, latency dashboard |
-| `surveillance/` | Python | Synthetic trader bots, rule-based manipulation detection, LLM surveillance agent |
-| `docs/` | Markdown | Roadmap, architecture decisions, threat model, API contract, learning resources |
-| `infra/` | YAML | Local dev stack (docker-compose), CI config |
+| Path            | Language         | Purpose                                                                          |
+| --------------- | ---------------- | -------------------------------------------------------------------------------- |
+| `engine/`       | C++              | Core matching engine — price-time priority order book, order add/cancel/match    |
+| `gateway/`      | Go               | API gateway — auth, validation, rate limiting, WebSocket fan-out, audit logging  |
+| `frontend/`     | TypeScript/React | Live order book, trade tape, order entry, latency dashboard                      |
+| `surveillance/` | Python           | Synthetic trader bots, rule-based manipulation detection, LLM surveillance agent |
+| `docs/`         | Markdown         | Roadmap, architecture decisions, threat model, API contract, learning resources  |
+| `infra/`        | YAML             | Local dev stack (docker-compose), CI config                                      |
 
 ## Where to start — read in this order
 
@@ -72,22 +72,24 @@ You're not meant to read everything at once. Follow this path:
 5. **The component `BUILD-PLAN.md` for whatever you're currently building** — detailed design, milestones, and testing for that one component. Only open the one you need right now.
 
 Reference docs you'll dip into as needed (not front-to-back reads):
+
 - **[`docs/02-THREAT-MODEL.md`](docs/02-THREAT-MODEL.md)** — fill this in during Phase 3 (it's a template now).
 - **[`docs/LEARNING-RESOURCES.md`](docs/LEARNING-RESOURCES.md)** — what to study, organized by the phase that needs it.
 - **[`docs/adr/`](docs/adr/)** — architecture decision records. Read 0002 (why polyglot); add your own as you make calls.
 
 ### Doc map at a glance
 
-| Doc | What it's for | When you read it |
-|---|---|---|
-| `docs/00-ROADMAP.md` | The plan, phase by phase | Constantly — it drives the work |
-| `docs/01-ARCHITECTURE.md` | How/why the system is split | Once up front, revisit when a boundary changes |
-| `docs/03-API-CONTRACT.md` | The shared message formats | Phase 0, then whenever the contract changes |
-| `<component>/BUILD-PLAN.md` | Deep plan for one component | When you start building that component |
-| `<component>/README.md` | Quick scope of one component | Quick orientation |
-| `docs/02-THREAT-MODEL.md` | STRIDE security pass (template) | Phase 3 |
-| `docs/LEARNING-RESOURCES.md` | Study material by phase | Before each phase's "learn first" step |
-| `docs/adr/` | Why decisions were made | When deciding, or to recall reasoning |
+| Doc                          | What it's for                      | When you read it                               |
+| ---------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `docs/00-ROADMAP.md`         | The plan, phase by phase           | Constantly — it drives the work                |
+| `docs/01-ARCHITECTURE.md`    | How/why the system is split        | Once up front, revisit when a boundary changes |
+| `docs/03-API-CONTRACT.md`    | The shared message formats         | Phase 0, then whenever the contract changes    |
+| `<component>/BUILD-PLAN.md`  | Deep plan for one component        | When you start building that component         |
+| `<component>/README.md`      | Quick scope of one component       | Quick orientation                              |
+| `docs/02-THREAT-MODEL.md`    | STRIDE security pass (template)    | Phase 3                                        |
+| `docs/LEARNING-RESOURCES.md` | Study material by phase            | Before each phase's "learn first" step         |
+| `docs/adr/`                  | Why decisions were made            | When deciding, or to recall reasoning          |
+| `AI-INTEGRATION.md`          | How the LLM/agentic work layers in | When building the AI features                  |
 
 ### The one rule
 
