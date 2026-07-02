@@ -12,7 +12,7 @@ Use C++ for the matching engine, Go for the gateway, TypeScript/React for the fr
 ## Alternatives considered
 - **All TypeScript/Node**: faster initial velocity, one language to maintain. Rejected because the matching engine is the centerpiece of the "performance engineering" story — a Node-based matching engine doesn't demonstrate the same depth, and trading firms specifically look for comfort with lower-level languages.
 - **All Go**: Go could plausibly handle the matching engine too (and would simplify the engine/gateway boundary into one process). Considered, but C++ is more standard for matching cores in the actual industry and is a stronger signal for the systems-engineering story specifically.
-- **Rust instead of C++ for the engine**: genuinely viable alternative, arguably a better safety story. Not chosen for v1 because it adds a learning curve on top of the systems-design learning curve already planned; worth revisiting as a phase 2 rewrite if time allows, since "I rewrote the hot path in Rust for memory safety" is itself a good interview story.
+- **Rust instead of C++ for the engine**: genuinely viable alternative, arguably a better safety story. Not chosen for v1 because it adds a learning curve on top of the systems-design learning curve already planned; worth revisiting as a much later rewrite if time allows, since "I rewrote the hot path in Rust for memory safety" is itself a good interview story.
 
 ## Consequences
 **Easier:** each component can be discussed in depth on its own terms; the project naturally demonstrates breadth across the stack; each language is doing the job it's actually suited for.

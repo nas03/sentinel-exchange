@@ -1,11 +1,11 @@
 # Threat Model — STRIDE
 
-Fill this in during Phase 3 (security hardening week). The structure is pre-built; the content is the actual work — don't skip to filling generic answers. For each row, write what's *specific to this system*.
+Fill this in during Phase 4 (the security-hardening phase). It's an input to the `docs/SECURITY.md` case study that phase ships. The structure is pre-built; the content is the actual work — don't skip to filling generic answers. For each row, write what's *specific to this system*.
 
 ## Scope
 
 What's in scope: gateway, frontend auth flow, order submission path, WebSocket data feed.
-What's out of scope (for now, document why): the matching engine's internal logic (trusted, not network-exposed directly), infra-level concerns like cloud IAM (covered separately in phase 2).
+What's out of scope (for now, document why): the matching engine's internal logic (trusted, not network-exposed directly), infra-level concerns like cloud IAM (covered in the Phase 7 deployment write-up, if that phase ships).
 
 ## Assets to protect
 

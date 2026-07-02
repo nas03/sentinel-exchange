@@ -55,17 +55,17 @@ gateway/
 - `DELETE /orders/{id}`: cancel path.
 - **Validation is message-integrity only:** correct types, side ∈ {buy,sell}, type ∈ {limit,market}, price > 0 and within tick bounds, quantity > 0 and within limits, required fields present. NOT business logic like balance checks (out of scope — document it). Reject malformed input here so the engine never sees it.
 
-### `auth` — Phase 3 (after the slice works)
+### `auth` — Phase 4 (after the slice and engine-depth phases)
 - `POST /auth/login`: verify credentials → issue short-lived access token (minutes) + refresh token.
 - Middleware: verify the bearer token on protected routes, attach the user identity to the request context. The WebSocket upgrade is also gated by this.
 - Decisions to record in `docs/02-THREAT-MODEL.md`: token expiry values, refresh rotation, why tokens don't go in `localStorage`.
 
-### `ratelimit` — Phase 3
+### `ratelimit` — Phase 4
 - Token bucket per authenticated client (per IP for unauthenticated endpoints).
 - Middleware wrapping the order handlers. Inject the clock as an interface so you can test refill behavior without sleeping.
 - **Test it for real:** drive orders faster than the bucket refills, assert rejection after the threshold; record the test + result in the threat model's validation section.
 
-### `audit` — Phase 3
+### `audit` — Phase 4
 - Append-only, structured (JSON lines) log of every order event: actor, action, order details, timestamp, sequence. This is your Repudiation mitigation in STRIDE.
 - Keep the writer behind an interface; for v1 a file is fine, note that production would want tamper-evidence (hash chaining / WORM storage) — saying that in the writeup shows you know the gap.
 
@@ -76,7 +76,7 @@ load config →
 dial engineclient (with reconnect) →
 start marketdata.Hub.Run() in a goroutine, fed by engineclient.Events() →
 register /ws/marketdata (marketdata.ServeWS) and /orders (orders handlers) →
-[Phase 3] wrap protected routes with auth + ratelimit middleware, attach audit →
+[Phase 4] wrap protected routes with auth + ratelimit middleware, attach audit →
 start HTTP server
 ```
 
@@ -85,7 +85,7 @@ If logic creeps into `main.go`, it belongs in a package.
 ## Config & observability
 - Config via env vars (engine socket path, listen port, JWT secret, token TTLs). Never hardcode secrets; read `JWT_SECRET` from the environment, document it in the README.
 - Structured logging (`slog`) from day one.
-- A `/metrics` endpoint (Prometheus) once you reach the benchmark phase — order counts, WebSocket connection gauge, latency histograms.
+- A `/metrics` endpoint (Prometheus) once you reach the observability work in Phase 6 — order counts, WebSocket connection gauge, latency histograms. (The engine benchmark in Phase 2 doesn't use this — it drives the engine directly with its own harness.)
 
 ## Testing
 - `engineclient`: test framing/reconnect against a fake socket server.
@@ -97,5 +97,5 @@ If logic creeps into `main.go`, it belongs in a package.
 ## Milestones
 1. **M1:** `engineclient` connects to the engine, surfaces events. (Depends on engine M2.)
 2. **M2 (completes the slice):** `marketdata` Hub broadcasts engine events over WebSocket, **and** a minimal `orders` `POST /orders` that forwards a well-formed order straight to the engine (no validation, no auth yet). Together with engine M2 and frontend M1, this is the end-to-end vertical slice: curl an order in, see the trade in the browser.
-3. **M3 (Phase 3):** harden the `orders` path — real input validation, reject malformed/out-of-bounds orders before the engine sees them; add `DELETE /orders/{id}`.
-4. **M4 (Phase 3):** `auth`, `ratelimit`, `audit` + the threat-model validation tests.
+3. **M3 (Phase 4):** harden the `orders` path — real input validation, reject malformed/out-of-bounds orders before the engine sees them; add `DELETE /orders/{id}`.
+4. **M4 (Phase 4):** `auth`, `ratelimit`, `audit` + the threat-model validation tests — all feeding the `docs/SECURITY.md` case study.

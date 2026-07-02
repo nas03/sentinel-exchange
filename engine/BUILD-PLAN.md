@@ -120,9 +120,11 @@ struct Event {
 
 Use Catch2 or GoogleTest. Tests are not optional here — "my matching engine has property-based invariant tests" is itself a strong interview line.
 
-## Benchmarking (Phase 5, do it honestly)
+## Benchmarking (roadmap Phase 2 — right after the slice; do it honestly)
 
-Drive the engine at a sustained order rate from a generator, measure order-to-event latency (p50/p99) and max sustained throughput before latency degrades. Record hardware, load profile, and **the bottleneck you found**. See `engine/README.md` for the honesty rules — idle-system microsecond numbers are meaningless.
+Drive the engine at a sustained order rate from a generator, measure order-to-event latency (p50/p99) and max sustained throughput before latency degrades. Benchmark the engine **in isolation** — the generator talks directly to the engine's socket, no gateway in the path. Record hardware, load profile, and **the bottleneck you found**. Benchmark Stage 1 *before* porting to Stage 2, so the delta is measured, not claimed. See `engine/README.md` for the honesty rules — idle-system microsecond numbers are meaningless.
+
+**Environment:** macOS on Apple Silicon has no practical `perf`-style PMU counter access, and a non-pinned laptop core makes absolute numbers shaky. Run the harness on a Linux box for the cache/branch analysis (a cheap bare cloud instance beats Docker-on-mac, where hardware counters are virtualized away). Mac numbers are a fine secondary datapoint — state the environment either way.
 
 ## Project structure
 
@@ -145,4 +147,4 @@ Keep `OrderBook` free of I/O — the IPC/socket adapter that talks to the gatewa
 3. **M3 — Fast LOB (Stage 2):** port to array-of-levels + object pool + intrusive lists. Re-run all tests (they should still pass — that's the point of having them).
 4. **M4 — Benchmark:** load harness, honest numbers, documented bottleneck and the fix you made.
 
-Done with the engine when M2 is working (slice unblocked) — M3/M4 are the depth that impresses trading firms, do them after the rest of the system is demoable.
+M2 unblocks the vertical slice. M3/M4 are the protected "wow" layer for the primary audience — per the roadmap they are **Phase 2, built immediately after the slice**, before frontend polish, security, or surveillance work.

@@ -7,6 +7,7 @@ Draft this fully in Phase 0 before writing component code — every other piece 
 - All timestamps: ISO 8601 UTC
 - All prices: integer ticks (avoid float for money — pick a tick size per instrument and document it)
 - All IDs: ULID or UUID v7 (sortable by time — useful for ordering/debugging)
+- All market-data messages carry a monotonic per-instrument `seq` (engine-assigned logical time) so clients can order events and detect gaps
 
 ## REST: Order Entry
 
@@ -24,18 +25,32 @@ Request:
 }
 ```
 
-Response (202 Accepted):
+Response — `202 Accepted` (passed gateway validation and was forwarded to the engine; fills and book changes arrive asynchronously on the market-data feed — 202 means "accepted for processing," not "filled"):
 ```json
 {
   "order_id": "string",
-  "status": "accepted" | "rejected",
-  "reject_reason": "string | null"
+  "client_order_id": "string",
+  "status": "accepted"
+}
+```
+
+Response — `400 Bad Request` (failed gateway validation; the engine never saw it):
+```json
+{
+  "client_order_id": "string",
+  "reject_reason": "string"
 }
 ```
 
 ### `DELETE /orders/{order_id}`
 
-Cancels an open order. Returns 200 with final status or 404 if not found/already filled.
+Cancels an open order. A cancel racing a fill is resolved by the engine's arrival order (`seq`) — the gateway reports whatever the engine decided:
+
+- `200` with final status for any order the system knows about:
+  ```json
+  { "order_id": "string", "status": "cancelled" | "already_filled" | "already_cancelled" }
+  ```
+- `404` only for an `order_id` that never existed.
 
 ## WebSocket: Market Data Feed
 
@@ -48,6 +63,7 @@ Server → client messages:
 {
   "type": "book_update",
   "instrument": "MOCK-USD",
+  "seq": 1042,
   "side": "buy",
   "price": 10050,
   "quantity": 200,
@@ -58,6 +74,7 @@ Server → client messages:
 {
   "type": "trade",
   "instrument": "MOCK-USD",
+  "seq": 1043,
   "price": 10050,
   "quantity": 50,
   "timestamp": "...",
@@ -65,15 +82,21 @@ Server → client messages:
 }
 ```
 
+**Sequencing:** `seq` is monotonic per instrument, assigned by the engine. A client that observes a gap (`n` → `n+2`) has missed data and is desynced.
+
+**Known v1 gap — no snapshot-on-subscribe.** A client that connects (or reconnects) mid-session starts from an empty book and cannot reconstruct resting depth from deltas alone. v1 accepts this deliberately: demo clients connect before order flow starts. The planned fix — documented here so it's a conscious gap, not an oversight — is a `book_snapshot` message sent on subscribe (which requires the gateway to maintain a live book cache off the engine feed), plus client resync-on-gap (v1 client behavior on a `seq` gap: clear book and reconnect). Build it when mid-session joins matter; record the design as an ADR then.
+
 ## Internal: Engine → Gateway events (IPC)
 
 Define the wire format here once you've picked the IPC mechanism (Phase 1). Likely a simple length-prefixed binary or JSON-lines protocol over a Unix socket — start with JSON-lines for development ease, consider binary later if you want a latency optimization story to tell.
 
 ```json
-{"type": "order_ack", "order_id": "...", "timestamp": "..."}
-{"type": "trade", "order_id": "...", "price": 10050, "quantity": 50, "timestamp": "..."}
-{"type": "book_delta", "side": "buy", "price": 10050, "quantity": 200, "timestamp": "..."}
+{"type": "order_ack", "seq": 1041, "order_id": "...", "timestamp": "..."}
+{"type": "trade", "seq": 1043, "order_id": "...", "price": 10050, "quantity": 50, "timestamp": "..."}
+{"type": "book_delta", "seq": 1042, "side": "buy", "price": 10050, "quantity": 200, "timestamp": "..."}
 ```
+
+`seq` is the engine's logical clock (arrival order — the same `Seq` that drives matching priority). Wall-clock timestamps are attached by the socket adapter in `engine/apps/`, never inside the matching core (see the determinism rules in `engine/BUILD-PLAN.md`).
 
 ## Internal: Surveillance event schema
 

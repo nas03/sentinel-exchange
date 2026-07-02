@@ -18,14 +18,14 @@ frontend/src/
 
 Keep `components/` dumb — they take typed props and render. All WebSocket connection handling, reconnection logic, and message parsing belongs in `hooks/` and `services/`. This is dependency inversion in practice: components depend on a typed data shape, not on *how* that data arrives. It also means you can test components with mock data and never spin up a WebSocket connection in a unit test.
 
-## Build order (Roadmap Phase 2)
+## Build order (Roadmap Phase 3)
 
 1. `types/` — mirror the API contract exactly, this is your source of truth
 2. `services/websocket.ts` — connection + reconnect logic, emits typed events
 3. `hooks/useOrderBook.ts` — subscribes to the service, maintains book state
 4. `components/OrderBook.tsx`, `TradeTape.tsx` — presentational, consume the hooks
 5. `components/OrderEntry.tsx` — form + submission via `services/api.ts`
-6. Auth: `hooks/useAuth.ts` + protected routing
+6. Auth (Phase 4): `hooks/useAuth.ts` + protected routing
 
 ## Run
 

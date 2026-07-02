@@ -28,21 +28,21 @@ The polyglot stack is the cost you accepted (see ADR 0002); good local tooling i
 
 Keep CI green from the start — a project with passing CI badges reads as more professional at a glance, and red CI on a portfolio repo is a bad look.
 
-## Layer 3 — Security in CI (Phase 3 — this is cyber-role evidence)
+## Layer 3 — Security in CI (Phase 4 — this is cyber-role evidence)
 
 This is the part that actually speaks to Orro/cyber roles, so make it real:
 - **SAST:** add Semgrep across the repo (it covers Go/TS/Python). Fix findings or consciously document accepted ones.
 - **Dependency scanning:** `govulncheck` (Go), `npm audit` (frontend), `pip-audit` (surveillance).
-- **Prove it works:** deliberately introduce a known-vulnerable dependency or an obvious injection sink, confirm CI catches it, then revert. Note that test in `docs/02-THREAT-MODEL.md` — "my pipeline fails on known-bad input, here's the evidence" is a concrete secure-SDLC story.
+- **Prove it works:** deliberately introduce a known-vulnerable dependency or an obvious injection sink, confirm CI catches it, then revert. Note that test in `docs/02-THREAT-MODEL.md` and fold it into the `docs/SECURITY.md` case study — "my pipeline fails on known-bad input, here's the evidence" is a concrete secure-SDLC story.
 - **Secrets hygiene:** secret-scanning (e.g. gitleaks) in CI; nothing sensitive ever committed (`.env` is gitignored already).
 
-## Layer 4 — Observability (Phase 5, for the benchmark)
+## Layer 4 — Observability (Phase 6, for dashboards/demo polish — the engine benchmark itself is Phase 2 and uses the engine's own harness, not Grafana)
 
 - The gateway exposes `/metrics` (Prometheus format): order counts, active WebSocket connections, latency histograms.
 - `infra/prometheus.yml` scrapes the gateway; Grafana visualizes. Both are scaffolded (commented) in the compose file.
 - **Honesty rule applies:** these dashboards are only meaningful under real load. The latency numbers come from the engine's load harness (`engine/bench/`), driven hard, with the methodology written down. A pretty panel over an idle system is theatre — see `engine/BUILD-PLAN.md`.
 
-## Layer 5 — Deployment (Phase 6 — optional, months out)
+## Layer 5 — Deployment (Phase 7 — optional, months out)
 
 Only after the local system is complete and demoable. This doubles as cloud/security evidence (ties into your AWS Developer Associate work).
 
@@ -56,8 +56,9 @@ Only after the local system is complete and demoable. This doubles as cloud/secu
 |---|---|
 | Early (alongside Phase 1) | Root Makefile/justfile, engine+gateway docker-compose |
 | As components mature | Per-component CI jobs, keep green |
-| Phase 3 | SAST + dep scanning + secret scanning + the "prove it catches a vuln" test |
-| Phase 5 | Prometheus/Grafana, fed by honest load-tested numbers |
-| Phase 6 (months out) | AWS deploy + the security writeup |
+| Phase 2 | Nothing new — the engine benchmark uses its own harness (`engine/bench/`), likely on a Linux box for perf counters |
+| Phase 4 | SAST + dep scanning + secret scanning + the "prove it catches a vuln" test |
+| Phase 6 | Prometheus/Grafana, fed by honest load-tested numbers |
+| Phase 7 (months out) | AWS deploy + the security writeup |
 
 Don't run ahead of this table. Infra that isn't unblocking a feature or a security story is premature.

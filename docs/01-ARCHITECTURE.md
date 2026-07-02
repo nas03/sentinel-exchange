@@ -22,6 +22,7 @@ This is a deliberate choice — see `docs/adr/0002-polyglot-architecture.md` for
 ### `engine/` — Matching Engine (C++)
 
 Owns the order book and matching logic exclusively. Responsibilities:
+
 - Maintain price-time priority order book per instrument
 - Process order add/cancel/modify
 - Match orders, emit trade events
@@ -32,6 +33,7 @@ Does **not** handle auth, validation of business rules beyond order integrity, o
 ### `gateway/` — API Gateway (Go)
 
 The only component exposed to the outside world. Responsibilities:
+
 - Authentication (JWT) and authorization
 - Input validation (reject malformed orders before they reach the engine)
 - Rate limiting per client
@@ -44,6 +46,7 @@ This is where most of the security story lives. Structure internals by responsib
 ### `frontend/` — Trading UI (TypeScript/React)
 
 Responsibilities:
+
 - Render live order book depth and trade tape from the WebSocket feed
 - Order entry form with client-side validation
 - Latency dashboard — this is a small addition that signals you understand what trading firms actually care about
@@ -53,14 +56,15 @@ Keep components presentational where possible; push WebSocket connection managem
 
 ### `surveillance/` — Bots + Detection + LLM Agent (Python)
 
-A note on positioning: this layer is genuinely strong for *applied-AI* and *fintech-compliance* framing, but it's only loosely "cybersecurity" in the infosec sense. The parts of this project that actually speak to a cyber role (Orro etc.) are the gateway's threat model, secure-SDLC pipeline, auth, and rate limiting — not the trading surveillance. Frame accordingly depending on who you're talking to.
+A note on positioning: this layer is genuinely strong for _applied-AI_ and _fintech-compliance_ framing, but it's only loosely "cybersecurity" in the infosec sense. The parts of this project that actually speak to a cyber role (Orro etc.) are the gateway's threat model, secure-SDLC pipeline, auth, and rate limiting — not the trading surveillance. Frame accordingly depending on who you're talking to.
 
 Three sub-responsibilities, deliberately separated:
+
 - `bots/` — generates synthetic order flow, both legitimate and manipulative, against the live gateway
 - `detectors/` — fast, deterministic rule-based detection (order-to-trade ratio, cancel rate, etc.)
 - `llm_agent/` — takes events the rule-based layer flags and produces a structured, explainable report
 
-The rule-based layer existing *before* the LLM layer is itself a design decision worth defending: LLMs are slow and non-deterministic relative to threshold checks, so you use rules to cheaply triage and the LLM to explain — not to do the triage itself.
+The rule-based layer existing _before_ the LLM layer is itself a design decision worth defending: LLMs are slow and non-deterministic relative to threshold checks, so you use rules to cheaply triage and the LLM to explain — not to do the triage itself.
 
 ## Data flow
 
@@ -76,7 +80,7 @@ Order submitted (REST) → Gateway validates + authenticates → Engine matches
 
 ## Key trade-offs to be ready to discuss
 
-- IPC mechanism choice (Unix socket vs shared memory) between engine and gateway — start with a socket (simple, gets the slice working in days); treat shared memory as a *later, measured* latency optimization with before/after numbers, not a starting point. The C++↔Go shared-memory path is a real multi-week detour for little early payoff.
+- IPC mechanism choice (Unix socket vs shared memory) between engine and gateway — start with a socket (simple, gets the slice working in days); treat shared memory as a _later, measured_ latency optimization with before/after numbers, not a starting point. The C++↔Go shared-memory path is a real multi-week detour for little early payoff.
 - Why rate limiting lives in the gateway, not the engine
 - Why the LLM agent only sees pre-filtered events, not the full order stream
 - How you'd actually scale this past a single-process matching engine (you don't have to build this — but know the answer: sharding by instrument is the standard approach)

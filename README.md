@@ -1,5 +1,7 @@
 # Sentinel Exchange
 
+<!-- TODO: demo gif goes RIGHT HERE, above the fold, as soon as the slice runs (Phase 1) — upgrade it after each phase. A recruiter gives this page ~20 seconds. -->
+
 A simulated trading exchange with a self-policing surveillance layer: a high-performance matching engine, a security-hardened gateway, real-time market visualization, and an LLM agent that detects and explains manipulative trading behavior — with an adversarial AI layer that tries to evade its own detectors.
 
 One system, three skill domains: low-latency systems engineering, applied security, and agentic AI.
@@ -20,7 +22,7 @@ Built as a portfolio project to demonstrate depth across trading-systems enginee
                     │   Go Gateway    │  auth, rate limiting,
                     │   (gateway/)    │  validation, audit log
                     └────────▲────────┘
-                             │ IPC / shared memory
+                             │ IPC (Unix socket)
                     ┌────────┴────────┐
                     │  C++ LOB Engine │  order matching,
                     │   (engine/)     │  price-time priority
@@ -38,7 +40,7 @@ Full breakdown of responsibilities and data flow: [`docs/01-ARCHITECTURE.md`](do
 
 ```bash
 # 1. Build and run the matching engine
-cd engine && make && ./lob_engine
+cd engine && cmake -B build && cmake --build build && ./build/lob_engine  # exact binary path may shift as the build lands
 
 # 2. Run the gateway (connects to engine via IPC)
 cd gateway && go run cmd/server/main.go
@@ -66,14 +68,14 @@ cd surveillance && pip install -r requirements.txt && python -m bots.run_simulat
 You're not meant to read everything at once. Follow this path:
 
 1. **This README** — you're here. Get the shape of the system from the diagram above.
-2. **[`docs/00-ROADMAP.md`](docs/00-ROADMAP.md)** — the master plan. Phases 0-6, what to build in each, what to learn first, and a "done when" checkpoint for each. **This is your day-to-day driver.** Start at Phase 0 and don't skip ahead.
+2. **[`docs/00-ROADMAP.md`](docs/00-ROADMAP.md)** — the master plan. Phases 0-7, what to build in each, what to learn first, and a "done when" checkpoint for each. **This is your day-to-day driver.** Start at Phase 0 and don't skip ahead.
 3. **[`docs/01-ARCHITECTURE.md`](docs/01-ARCHITECTURE.md)** — why the pieces are split the way they are, and the trade-offs to be ready to defend in interviews.
 4. **[`docs/03-API-CONTRACT.md`](docs/03-API-CONTRACT.md)** — the messages every component agrees on. Settle this in Phase 0; everything codes against it.
 5. **The component `BUILD-PLAN.md` for whatever you're currently building** — detailed design, milestones, and testing for that one component. Only open the one you need right now.
 
 Reference docs you'll dip into as needed (not front-to-back reads):
 
-- **[`docs/02-THREAT-MODEL.md`](docs/02-THREAT-MODEL.md)** — fill this in during Phase 3 (it's a template now).
+- **[`docs/02-THREAT-MODEL.md`](docs/02-THREAT-MODEL.md)** — fill this in during Phase 4 (it's a template now).
 - **[`docs/LEARNING-RESOURCES.md`](docs/LEARNING-RESOURCES.md)** — what to study, organized by the phase that needs it.
 - **[`docs/adr/`](docs/adr/)** — architecture decision records. Read 0002 (why polyglot); add your own as you make calls.
 
@@ -86,14 +88,14 @@ Reference docs you'll dip into as needed (not front-to-back reads):
 | `docs/03-API-CONTRACT.md`    | The shared message formats         | Phase 0, then whenever the contract changes    |
 | `<component>/BUILD-PLAN.md`  | Deep plan for one component        | When you start building that component         |
 | `<component>/README.md`      | Quick scope of one component       | Quick orientation                              |
-| `docs/02-THREAT-MODEL.md`    | STRIDE security pass (template)    | Phase 3                                        |
+| `docs/02-THREAT-MODEL.md`    | STRIDE security pass (template)    | Phase 4                                        |
 | `docs/LEARNING-RESOURCES.md` | Study material by phase            | Before each phase's "learn first" step         |
 | `docs/adr/`                  | Why decisions were made            | When deciding, or to recall reasoning          |
 | `AI-INTEGRATION.md`          | How the LLM/agentic work layers in | When building the AI features                  |
 
 ### The one rule
 
-Build the **vertical slice** (Phase 1) before anything else: one order matching end to end, engine → gateway → browser. It's the three milestones Engine M2 + Gateway M2 + Frontend M1. Nothing else starts until that runs.
+Build the **vertical slice** (Phase 1) before anything else: one order matching end to end, engine → gateway → browser. It's the three milestones Engine M2 + Gateway M2 + Frontend M1. Nothing else starts until that runs. Immediately after it comes **Phase 2 — engine depth + the honest benchmark** (the centerpiece for the primary audience), before any polish.
 
 ## Status
 

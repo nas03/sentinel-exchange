@@ -13,7 +13,7 @@ surveillance/
 
 Decide the tap point. Cleanest option: surveillance subscribes to the **same WebSocket market-data feed** the frontend uses, plus reads the gateway's **audit log** for the per-actor order/cancel detail it needs (the public feed may be anonymized). Document this — "what data does a surveillance system actually get to see" is a real design question and the answer affects what's detectable.
 
-## Part 1 — Bots (Phase 4)
+## Part 1 — Bots (Phase 5)
 
 ### `bots/base.py` — the interface (already scaffolded)
 Every bot implements `next_action(market_state) -> OrderIntent | None`. This is open/closed: new manipulative patterns are new classes, the orchestrator never changes. Keep this interface small and stable.
@@ -30,7 +30,7 @@ Multiple orders stacked at several price levels on one side to fake depth, cance
 ### `bots/run_simulation.py` — orchestrator
 Runs a *mixed population* (mostly normal, a few bad actors) against the live gateway on a tick loop. **Critical: log ground truth** — which bot placed which order. Without labels you can't measure whether your detector actually works, and the measurement is the whole point.
 
-## Part 2 — Detectors (Phase 5, build before the LLM)
+## Part 2 — Detectors (Phase 6, build before the LLM)
 
 `detectors/rule_based.py` — deterministic metrics over sliding windows, per actor:
 - **Order-to-trade ratio:** orders placed vs orders filled. Spoofers/layerers score high by construction.
@@ -43,7 +43,7 @@ Each metric crossing a threshold emits a `SurveillanceFlag` (schema in `docs/03-
 
 Why rules before the LLM: they run on every event, cheaply and deterministically. They decide *what's worth a closer look*. The LLM never touches the high-frequency stream.
 
-## Part 3 — LLM agent (Phase 5)
+## Part 3 — LLM agent (Phase 6)
 
 `llm_agent/surveillance_agent.py` — takes a `SurveillanceFlag` plus surrounding order-book context, returns a **structured** report (Pydantic-validated: `summary`, `confidence`, `recommended_action`), not free-form prose.
 
@@ -53,7 +53,7 @@ Design points (read Anthropic's tool-use / structured-output docs first):
 - Validate the response against the Pydantic schema; reject/retry on malformed output.
 - **Architectural boundary:** the agent only ever sees pre-filtered flags, never the raw stream. Cost, latency, and determinism all favor keeping the LLM out of the hot path — be ready to explain exactly this.
 
-## Part 4 — Adversary (Phase 6 / months later — the AI red-teaming showcase)
+## Part 4 — Adversary (Phase 7 / months later — the AI red-teaming showcase)
 
 `llm_agent/adversary.py` — an agent that, given knowledge of your detection rules, tries to craft order sequences that achieve a manipulative goal *while staying under the thresholds*. Then you harden the detectors against what it finds, and iterate. This closed loop is genuine adversarial red-teaming and is the piece most aligned with your AI Red Teamer track. Build it only once the detection loop is solid and trustworthy — you can't measure evasion against a detector you don't trust.
 
@@ -63,8 +63,8 @@ Design points (read Anthropic's tool-use / structured-output docs first):
 - LLM agent: test schema validation and the pre-filter boundary with mocked API responses (don't burn tokens in CI). A small set of recorded flags → expected-shape reports.
 
 ## Milestones
-1. **M1 (Phase 4):** normal trader + orchestrator producing a healthy-looking book against the live gateway, with ground-truth logging.
-2. **M2 (Phase 4):** spoofer + layering bots mixed in — you should be able to *see* something's off in the UI before any detection code exists.
-3. **M3 (Phase 5):** rule-based detector + evaluation harness with precision/recall numbers.
-4. **M4 (Phase 5):** LLM surveillance agent producing structured reports.
-5. **M5 (Phase 6):** adversarial agent + detector hardening loop.
+1. **M1 (Phase 5):** normal trader + orchestrator producing a healthy-looking book against the live gateway, with ground-truth logging.
+2. **M2 (Phase 5):** spoofer + layering bots mixed in — you should be able to *see* something's off in the UI before any detection code exists.
+3. **M3 (Phase 6):** rule-based detector + evaluation harness with precision/recall numbers.
+4. **M4 (Phase 6):** LLM surveillance agent producing structured reports.
+5. **M5 (Phase 7):** adversarial agent + detector hardening loop.
