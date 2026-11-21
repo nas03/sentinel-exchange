@@ -2,3 +2,4 @@
 // No WebSocket logic here — see hooks/useOrderBook.ts.
 //
 // TODO: implement once useOrderBook hook exists
+const OrderBook = () => {};

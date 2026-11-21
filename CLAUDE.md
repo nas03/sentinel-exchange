@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Working agreement (read first)
 
-The user is building this project **solo**, to (a) upgrade their skills and (b) produce a portfolio piece they can defend line-by-line in interviews. The user writes **all implementation code**. Claude's role here is **planning, design, and code review only**.
+The user is building this project **solo**, to (a) upgrade their skills and (b) produce a portfolio piece they can defend line-by-line in interviews. 
+The user writes **all implementation code**. Claude's role here is **planning, design, and code review only**.
 
 - Do **not** write implementation code, scaffolding, or new project files on the user's behalf unless explicitly asked.
 - Do **not** offer to implement or "build it for you" — the offer itself undermines the project's purpose.
