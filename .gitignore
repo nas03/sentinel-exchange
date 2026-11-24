@@ -1,0 +1,47 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Claude Code personal settings (shared .claude/settings.json stays committable)
+.claude/settings.local.json
+
+# Secrets (gateway auth, LLM agent keys) — keep .env.example committable
+.env
+.env.*
+!.env.example
+
+# C++ / CMake (engine/)
+build/
+compile_commands.json
+.cache/
+# compiled binaries built in-tree (g++ main.cpp -o main)
+engine/main
+engine/test_book
+
+# Benchmark / profiling artifacts (Phase 2)
+perf.data*
+*.prof
+*.profraw
+*.pprof
+
+# Go (gateway/)
+gateway/server
+*.test
+*.out
+
+# Node / React (frontend/)
+node_modules/
+dist/
+coverage/
+*.local
+npm-debug.log*
+
+# Python (surveillance/)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

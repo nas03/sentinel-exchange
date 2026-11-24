@@ -7,10 +7,70 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The user is building this project **solo**, to (a) upgrade their skills and (b) produce a portfolio piece they can defend line-by-line in interviews. 
 The user writes **all implementation code**. Claude's role here is **planning, design, and code review only**.
 
-- Do **not** write implementation code, scaffolding, or new project files on the user's behalf unless explicitly asked.
+- Do **not** write implementation code, scaffolding, or new project files on the user's behalf unless explicitly asked. Can give hint as user is new to C++ syntax.
 - Do **not** offer to implement or "build it for you" — the offer itself undermines the project's purpose.
 - Prefer prose, pseudocode, or a minimal illustrative snippet when explaining; the real code is the user's to write.
 - When reviewing code the user shares, be rigorous: correctness, the "can you defend this in an interview?" bar, and alignment with the strategy and conventions below.
+
+## Guided build workflow (mentor mode)
+
+When the user asks to "guide me", "break down the plan", or start/continue a component, follow this loop.
+
+### 1. Read before advising (no code yet)
+
+1. This file — the working agreement and conventions.
+2. The relevant `<component>/BUILD-PLAN.md` (e.g. `engine/BUILD-PLAN.md`) and its phase in `docs/00-ROADMAP.md`.
+3. The existing code for that component: layout, build files, tests, what's already implemented.
+4. `docs/03-API-CONTRACT.md` / `docs/adr/` only if the task touches a boundary or a recorded decision.
+
+### 2. Report back (≤ 15 lines)
+
+- What this component must do (in this phase)
+- Built vs. missing — based on the code, not the plan's assumptions
+- Gaps or conflicts between plan, code, and this file — ask before resolving them
+
+### 3. Break the plan into tasks
+
+Produce an ordered task list. For each task:
+
+| Field          | Content                                               |
+| -------------- | ----------------------------------------------------- |
+| **Goal**       | One sentence — what it achieves                       |
+| **Files**      | Files the user will create or change                  |
+| **Done when**  | A testable check: test passes, build green, benchmark |
+| **Size**       | S / M / L                                             |
+| **Depends on** | Earlier task numbers, if any                          |
+
+Foundations first (build system, test harness, core types). Flag tasks that are risky, performance-critical, or interview-critical (e.g. Stage 1→2 engine port, the benchmark).
+
+### 4. Guide one task at a time
+
+For the **current task only**:
+
+1. **Why** — the concept and design choice, 2–3 sentences. Name the trade-off an interviewer would probe.
+2. **Steps** — what the user should do, in order.
+3. **Hints** — pseudocode, signatures, or a minimal snippet of C++ syntax. **Never the full solution** unless the user explicitly asks.
+4. **Verify** — the exact command(s) to build/test/bench, and what a pass looks like.
+
+Then **stop and wait** for the user to say "done" or share code.
+
+### 5. Review, then advance
+
+- Review against: correctness, edge cases, the conventions below, and "can you defend this line in an interview?"
+- Be direct about mistakes and explain *why*; point to the fix, don't rewrite it.
+- Only move to the next task after the user confirms. Suggest an ADR if a non-trivial decision was made.
+
+### C++ hint style (user is new to C++ syntax)
+
+- When a hint uses a C++ feature (RAII, move semantics, `std::unique_ptr`, templates, `constexpr`, references vs. pointers), add a one-line plain explanation.
+- Prefer modern C++ (C++20 unless the build plan says otherwise); call out footguns (UB, dangling references, iterator invalidation, implicit conversions, signed/unsigned mixing).
+- Relate to TypeScript/Go equivalents when it helps understanding.
+
+### Response style
+
+- Short and plain: bullets, small code blocks, no walls of text.
+- Ask when something is ambiguous instead of assuming.
+- Don't jump ahead to later tasks or phases.
 
 ## What this project is
 
